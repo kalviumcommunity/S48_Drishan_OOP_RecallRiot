@@ -14,7 +14,7 @@ public:
 
     // Member function to flip the card
     void flip() {
-         this->faceUp = !this->faceUp;  
+         this->faceUp = !this->faceUp;
     }
 
     // Member function to get the card's value
@@ -43,14 +43,25 @@ public:
 };
 
 int main() {
-    // Instantiating objects
+    // Create an array of Card objects
+    Card cardArray[3] = { Card('A'), Card('B'), Card('C') };
+
+    // Flip and display the cards using the array
+    for (int i = 0; i < 3; ++i) {
+        cardArray[i].flip();
+        cout << "Card " << i + 1 << ": ";
+        cout << cardArray[i].getValue() << " (Flipped)" << endl;
+    }
+
+    // Instantiate MemoryGame object
     MemoryGame game;
 
-    // Adding cards to the game
-    game.addCard('A');
-    game.addCard('B');
+    // Add cards to the game using the array
+    for (int i = 0; i < 3; ++i) {
+        game.addCard(cardArray[i].getValue());
+    }
 
-    // Displaying the cards
+    // Displaying the cards in the game
     game.displayCards();
 
     return 0;
