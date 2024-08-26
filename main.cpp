@@ -14,12 +14,12 @@ public:
 
     // Member function to flip the card
     void flip() {
-        faceUp = !faceUp;
+         this->faceUp = !this->faceUp;  
     }
 
     // Member function to get the card's value
     char getValue() const {
-        return value;
+         return this->value;
     }
 };
 
