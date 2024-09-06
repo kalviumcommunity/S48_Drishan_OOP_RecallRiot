@@ -14,55 +14,54 @@ public:
 
     // Member function to flip the card
     void flip() {
-         this->faceUp = !this->faceUp;
+        faceUp = !faceUp;
     }
 
     // Member function to get the card's value
     char getValue() const {
-         return this->value;
+        return value;
     }
 };
 
 class MemoryGame {
 private:
-    vector<Card> cards;
+    vector<Card*> cards;  // Vector to hold pointers to Card objects
 
 public:
+    ~MemoryGame() {
+        // Destructor to release dynamically allocated memory
+        for (auto card : cards) {
+            delete card;
+        }
+    }
+
     // Member function to add a card to the game
     void addCard(char value) {
-        cards.push_back(Card(value));
+        cards.push_back(new Card(value));  // Dynamically allocate memory for Card
     }
 
     // Member function to display the values of the cards
     void displayCards() const {
         for (const auto& card : cards) {
-            cout << card.getValue() << " ";
+            cout << card->getValue() << " ";
         }
         cout << endl;
     }
 };
 
 int main() {
-    // Create an array of Card objects
-    Card cardArray[3] = { Card('A'), Card('B'), Card('C') };
+    // Instantiating object dynamically
+    MemoryGame* game = new MemoryGame();
 
-    // Flip and display the cards using the array
-    for (int i = 0; i < 3; ++i) {
-        cardArray[i].flip();
-        cout << "Card " << i + 1 << ": ";
-        cout << cardArray[i].getValue() << " (Flipped)" << endl;
-    }
+    // Adding cards to the game
+    game->addCard('A');
+    game->addCard('B');
 
-    // Instantiate MemoryGame object
-    MemoryGame game;
+    // Displaying the cards
+    game->displayCards();
 
-    // Add cards to the game using the array
-    for (int i = 0; i < 3; ++i) {
-        game.addCard(cardArray[i].getValue());
-    }
-
-    // Displaying the cards in the game
-    game.displayCards();
+    // Deleting the dynamically allocated game object
+    delete game;
 
     return 0;
 }
