@@ -25,33 +25,43 @@ public:
 
 class MemoryGame {
 private:
-    vector<Card> cards;
+    vector<Card*> cards;  // Vector to hold pointers to Card objects
 
 public:
+    ~MemoryGame() {
+        // Destructor to release dynamically allocated memory
+        for (auto card : cards) {
+            delete card;
+        }
+    }
+
     // Member function to add a card to the game
     void addCard(char value) {
-        cards.push_back(Card(value));
+        cards.push_back(new Card(value));  // Dynamically allocate memory for Card
     }
 
     // Member function to display the values of the cards
     void displayCards() const {
         for (const auto& card : cards) {
-            cout << card.getValue() << " ";
+            cout << card->getValue() << " ";
         }
         cout << endl;
     }
 };
 
 int main() {
-    // Instantiating objects
-    MemoryGame game;
+    // Instantiating object dynamically
+    MemoryGame* game = new MemoryGame();
 
     // Adding cards to the game
-    game.addCard('A');
-    game.addCard('B');
+    game->addCard('A');
+    game->addCard('B');
 
     // Displaying the cards
-    game.displayCards();
+    game->displayCards();
+
+    // Deleting the dynamically allocated game object
+    delete game;
 
     return 0;
 }
