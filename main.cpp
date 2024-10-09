@@ -25,8 +25,8 @@ public:
     }
 
     // Static function to get the flip count
-    static int getFlipCount() {
-        return flipCount;
+    static int getFlipCount() {  //Static Member function was already added
+        return flipCount;  // Static member function to return the flip count
     }
 };
 
@@ -61,7 +61,7 @@ public:
 
     // Static function to get the total number of cards
     static int getTotalCards() {
-        return totalCards;
+        return totalCards;  // Static member function to return total number of cards
     }
 };
 
@@ -79,8 +79,8 @@ int main() {
     game->displayCards();
 
     // Displaying the total cards and flip count
-    cout << "Total cards: " << MemoryGame::getTotalCards() << endl;
-    cout << "Total flips: " << Card::getFlipCount() << endl;
+    cout << "Total cards: " << MemoryGame::getTotalCards() << endl;  // Static member function called
+    cout << "Total flips: " << Card::getFlipCount() << endl;  // Static member function called
 
     // Deleting the dynamically allocated game object
     delete game;
