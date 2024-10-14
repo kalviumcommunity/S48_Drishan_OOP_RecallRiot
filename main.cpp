@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
@@ -7,83 +6,109 @@ class Card {
 private:
     char value;
     bool faceUp;
-    static int flipCount;  // Static variable to count card flips
+    static int flipCount;
 
 public:
-    // Constructor
-    Card(char v) : value(v), faceUp(false) {}
-
-    // Member function to flip the card
-    void flip() {
-        faceUp = !faceUp;
-        flipCount++;  // Increment flip count each time a card is flipped
-    }
-
-    // Member function to get the card's value
+    // Accessor for card value
     char getValue() const {
         return value;
     }
 
-    // Static function to get the flip count
-    static int getFlipCount() {  //Static Member function was already added
-        return flipCount;  // Static member function to return the flip count
+    // Mutator for flipping the card
+    void flip() {
+        faceUp = !faceUp;
+        flipCount++;
+    }
+
+    // Accessor for faceUp state
+    bool isFaceUp() const {
+        return faceUp;
+    }
+
+    // Static accessor for flip count
+    static int getFlipCount() {
+        return flipCount;
+    }
+
+    // Constructor using 'this'
+    Card(char value) {
+        this->value = value;
+        this->faceUp = false;
     }
 };
 
-int Card::flipCount = 0;  // Initialize static flip count
+int Card::flipCount = 0;
 
 class MemoryGame {
 private:
-    vector<Card*> cards;  // Vector to hold pointers to Card objects
-    static int totalCards;  // Static variable to track total cards added
+    Card* cards[4][4];
+    static int totalCards;
 
 public:
-    ~MemoryGame() {
-        // Destructor to release dynamically allocated memory
-        for (auto card : cards) {
-            delete card;
+    // Mutator for flipping a card
+    void flipCard(int row, int col) {
+        if (row >= 0 && row < 4 && col >= 0 && col < 4) {
+            cards[row][col]->flip();
         }
     }
 
-    // Member function to add a card to the game
-    void addCard(char value) {
-        cards.push_back(new Card(value));  // Dynamically allocate memory for Card
-        totalCards++;  // Increment total cards count
-    }
-
-    // Member function to display the values of the cards
-    void displayCards() const {
-        for (const auto& card : cards) {
-            cout << card->getValue() << " ";
-        }
-        cout << endl;
-    }
-
-    // Static function to get the total number of cards
+    // Accessor for total cards
     static int getTotalCards() {
-        return totalCards;  // Static member function to return total number of cards
+        return totalCards;
+    }
+
+    MemoryGame() {
+        char initialCards[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 
+                               'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+        int index = 0;
+
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                cards[i][j] = new Card(initialCards[index++]);
+                totalCards++;
+            }
+        }
+    }
+
+    ~MemoryGame() {
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                delete cards[i][j];
+            }
+        }
+    }
+
+    // Accessor for displaying cards
+    void displayCards() const {
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (cards[i][j]->isFaceUp()) {
+                    cout << cards[i][j]->getValue() << " ";
+                } else {
+                    cout << "* ";
+                }
+            }
+            cout << endl;
+        }
     }
 };
 
-int MemoryGame::totalCards = 0;  // Initialize static total cards count
+int MemoryGame::totalCards = 0;
 
 int main() {
-    // Instantiating object dynamically
-    MemoryGame* game = new MemoryGame();
+    MemoryGame game;
 
-    // Adding cards to the game
-    game->addCard('A');
-    game->addCard('B');
+    cout << "Initial state of the game (all cards face down):" << endl;
+    game.displayCards();
 
-    // Displaying the cards
-    game->displayCards();
+    game.flipCard(0, 0);
+    game.flipCard(1, 1);
 
-    // Displaying the total cards and flip count
-    cout << "Total cards: " << MemoryGame::getTotalCards() << endl;  // Static member function called
-    cout << "Total flips: " << Card::getFlipCount() << endl;  // Static member function called
+    cout << "\nState of the game after flipping some cards:" << endl;
+    game.displayCards();
 
-    // Deleting the dynamically allocated game object
-    delete game;
+    cout << "\nTotal cards: " << MemoryGame::getTotalCards() << endl;
+    cout << "Total flips: " << Card::getFlipCount() << endl;
 
     return 0;
 }
