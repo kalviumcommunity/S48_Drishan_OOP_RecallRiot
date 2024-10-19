@@ -97,15 +97,23 @@ int MemoryGame::totalCards = 0;
 
 int main() {
     MemoryGame game;
+    int row, col;
 
     cout << "Initial state of the game (all cards face down):" << endl;
     game.displayCards();
 
-    game.flipCard(0, 0);
-    game.flipCard(1, 1);
+    // Let the user input card positions to flip
+    while (true) {
+        cout << "\nEnter the row and column of the card to flip (0-3 for both) or (-1 -1) to exit: ";
+        cin >> row >> col;
 
-    cout << "\nState of the game after flipping some cards:" << endl;
-    game.displayCards();
+        if (row == -1 && col == -1) {
+            break;  // Exit loop if user inputs -1 -1
+        }
+
+        game.flipCard(row, col);
+        game.displayCards();
+    }
 
     cout << "\nTotal cards: " << MemoryGame::getTotalCards() << endl;
     cout << "Total flips: " << Card::getFlipCount() << endl;
