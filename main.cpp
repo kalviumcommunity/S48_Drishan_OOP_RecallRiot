@@ -9,6 +9,13 @@ private:
     static int flipCount;
 
 public:
+
+    // Constructor using 'this'
+    Card(char value) {
+        this->value = value;
+        this->faceUp = false;
+    }
+
     // Accessor for card value
     char getValue() const {
         return value;
@@ -30,11 +37,6 @@ public:
         return flipCount;
     }
 
-    // Constructor using 'this'
-    Card(char value) {
-        this->value = value;
-        this->faceUp = false;
-    }
 };
 
 int Card::flipCount = 0;
