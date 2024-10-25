@@ -77,7 +77,7 @@ public:
         }
     }
 
-     // Shuffle function for card array
+    // Shuffle function for card array
     void shuffleCards(char arr[], int size) {
         // Seed the random number generator
         random_device rd;
