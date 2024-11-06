@@ -1,4 +1,4 @@
-#include <iostream>
+#include <iostream> 
 #include <algorithm>  // For std::shuffle
 #include <random>     // For std::random_device and std::mt19937
 #include <ctime>      // For seeding the random number generator
@@ -12,28 +12,23 @@ private:
     static int flipCount;
 
 public:
-    // Accessor for card value
     char getValue() const {
         return value;
     }
 
-    // Mutator for flipping the card
     void flip() {
         faceUp = !faceUp;
         flipCount++;
     }
 
-    // Accessor for faceUp state
     bool isFaceUp() const {
         return faceUp;
     }
 
-    // Static accessor for flip count
     static int getFlipCount() {
         return flipCount;
     }
 
-    // Parameterized constructor for Card
     Card(char value) {
         this->value = value;
         this->faceUp = false;
@@ -48,24 +43,30 @@ private:
     static int totalCards;
 
 public:
-    // Mutator for flipping a card
-    void flipCard(int row, int col) {
+    void flipCard(int row, int col) {  // Function overloading: specific card flip
         if (row >= 0 && row < 4 && col >= 0 && col < 4) {
             cards[row][col]->flip();
         }
     }
 
-    // Accessor for total cards
+    void flipCard() {  // Function overloading: flip all cards
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (!cards[i][j]->isFaceUp()) {
+                    cards[i][j]->flip();
+                }
+            }
+        }
+    }
+
     static int getTotalCards() {
         return totalCards;
     }
 
-    // Default constructor for MemoryGame
     MemoryGame() {
         char initialCards[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 
                                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
 
-        // Shuffle the cards
         shuffleCards(initialCards, 16);
 
         int index = 0;
@@ -77,17 +78,12 @@ public:
         }
     }
 
-    // Shuffle function for card array
     void shuffleCards(char arr[], int size) {
-        // Seed the random number generator
         random_device rd;
         mt19937 g(rd());
-
-        // Shuffle the array
         shuffle(arr, arr + size, g);
     }
 
-    // Destructor for MemoryGame
     ~MemoryGame() {
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
@@ -96,7 +92,6 @@ public:
         }
     }
 
-    // Display cards
     void displayCards() const {
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
@@ -116,20 +111,27 @@ int MemoryGame::totalCards = 0;
 int main() {
     MemoryGame game;
     int row, col;
+    char choice;
 
     cout << "Initial state of the game (all cards face down):" << endl;
     game.displayCards();
 
-    // Let the user input card positions to flip
     while (true) {
-        cout << "\nEnter the row and column of the card to flip (0-3 for both) or (-1 -1) to exit: ";
-        cin >> row >> col;
+        cout << "\nEnter 's' to flip a specific card, 'a' to flip all cards, or 'q' to quit: ";
+        cin >> choice;
 
-        if (row == -1 && col == -1) {
-            break;  // Exit loop if user inputs -1 -1
+        if (choice == 'q') {
+            break;
         }
 
-        game.flipCard(row, col);
+        if (choice == 's') {
+            cout << "Enter the row and column of the card to flip (0-3 for both): ";
+            cin >> row >> col;
+            game.flipCard(row, col);  // Calls specific card flip (overloaded function)
+        } else if (choice == 'a') {
+            game.flipCard();  // Calls all-cards flip (overloaded function)
+        }
+
         game.displayCards();
     }
 
