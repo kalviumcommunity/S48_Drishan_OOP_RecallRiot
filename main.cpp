@@ -1,89 +1,68 @@
-#include <iostream>
+#include <iostream> 
 #include <algorithm>  // For std::shuffle
 #include <random>     // For std::random_device and std::mt19937
+#include <ctime>      // For seeding the random number generator
 
 using namespace std;
 
-// Base class for Cards
 class Card {
-protected:
+private:
     char value;
     bool faceUp;
     static int flipCount;
 
 public:
-    // Accessor for card value
     char getValue() const {
         return value;
     }
 
-    // Mutator for flipping the card
     void flip() {
         faceUp = !faceUp;
-        if (flipCount > 0) {
-            flipCount--;  // Decrement flip count on each flip
-        }
+        flipCount++;
     }
 
-    // Accessor for faceUp state
     bool isFaceUp() const {
         return faceUp;
     }
 
-    // Static accessor for flip count
     static int getFlipCount() {
         return flipCount;
     }
 
-    // Parameterized constructor for Card
     Card(char value) {
         this->value = value;
         this->faceUp = false;
     }
 };
 
-int Card::flipCount = 30; // Initialize flipCount to 30
+int Card::flipCount = 0;
 
-// Derived class for SpecialCard (Single Inheritance)
-class SpecialCard : public Card {
+class MemoryGame {
 private:
-    bool specialAbility;
-
-public:
-    SpecialCard(char value, bool ability) : Card(value), specialAbility(ability) {}
-
-    // New function to check if the card has a special ability
-    bool hasSpecialAbility() const {
-        return specialAbility;
-    }
-};
-
-// Another class for the game board (Multilevel Inheritance)
-class GameBoard {
-protected:
-    SpecialCard* board[4][4];
-public:
-    virtual void displayBoard() const {
-        for (int i = 0; i < 4; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                if (board[i][j]->isFaceUp()) {
-                    cout << board[i][j]->getValue() << " ";
-                } else {
-                    cout << "* ";
-                }
-            }
-            cout << endl;
-        }
-    }
-};
-
-// MemoryGame now inherits from GameBoard (Multilevel Inheritance)
-class MemoryGame : public GameBoard {
-private:
+    Card* cards[4][4];
     static int totalCards;
 
 public:
-    // Constructor for MemoryGame
+    void flipCard(int row, int col) {  // Function overloading: specific card flip
+        if (row >= 0 && row < 4 && col >= 0 && col < 4) {
+            cards[row][col]->flip();
+        }
+    }
+
+    void flipCard() {  // Function overloading: flip all cards
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (!cards[i][j]->isFaceUp()) {
+                    cards[i][j]->flip();
+                }
+            }
+        }
+    }
+
+    static int getTotalCards() {
+        return totalCards;
+    }
+
     MemoryGame() {
         char initialCards[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 
                                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
@@ -93,43 +72,37 @@ public:
         int index = 0;
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
-                board[i][j] = new SpecialCard(initialCards[index++], false);
+                cards[i][j] = new Card(initialCards[index++]);
                 totalCards++;
             }
         }
     }
 
-    // Shuffle function for cards
     void shuffleCards(char arr[], int size) {
         random_device rd;
         mt19937 g(rd());
         shuffle(arr, arr + size, g);
     }
 
-    // Destructor for MemoryGame
     ~MemoryGame() {
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
-                delete board[i][j];
+                delete cards[i][j];
             }
         }
     }
 
-    // Flip a card on the board
-    void flipCard(int row, int col) {
-        if (row >= 0 && row < 4 && col >= 0 && col < 4) {
-            board[row][col]->flip();
+    void displayCards() const {
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (cards[i][j]->isFaceUp()) {
+                    cout << cards[i][j]->getValue() << " ";
+                } else {
+                    cout << "* ";
+                }
+            }
+            cout << endl;
         }
-    }
-
-    // Accessor for total cards
-    static int getTotalCards() {
-        return totalCards;
-    }
-
-    // Check if the game is over (when flipCount is 0)
-    bool isGameOver() const {
-        return Card::getFlipCount() == 0;
     }
 };
 
@@ -138,26 +111,28 @@ int MemoryGame::totalCards = 0;
 int main() {
     MemoryGame game;
     int row, col;
+    char choice;
 
     cout << "Initial state of the game (all cards face down):" << endl;
-    game.displayBoard();
+    game.displayCards();
 
     while (true) {
-        if (game.isGameOver()) {
-            cout << "\nGame Over! No more flips remaining." << endl;
+        cout << "\nEnter 's' to flip a specific card, 'a' to flip all cards, or 'q' to quit: ";
+        cin >> choice;
+
+        if (choice == 'q') {
             break;
         }
 
-        cout << "\nRemaining flips: " << Card::getFlipCount() << endl;
-        cout << "Enter the row and column of the card to flip (0-3 for both) or (-1 -1) to exit: ";
-        cin >> row >> col;
-
-        if (row == -1 && col == -1) {
-            break;  // Exit loop if user inputs -1 -1
+        if (choice == 's') {
+            cout << "Enter the row and column of the card to flip (0-3 for both): ";
+            cin >> row >> col;
+            game.flipCard(row, col);  // Calls specific card flip (overloaded function)
+        } else if (choice == 'a') {
+            game.flipCard();  // Calls all-cards flip (overloaded function)
         }
 
-        game.flipCard(row, col);
-        game.displayBoard();
+        game.displayCards();
     }
 
     cout << "\nTotal cards: " << MemoryGame::getTotalCards() << endl;
