@@ -1,9 +1,13 @@
-#include <iostream> 
+#include <iostream>  
 #include <algorithm>  // For std::shuffle
 #include <random>     // For std::random_device and std::mt19937
 #include <ctime>      // For seeding the random number generator
 
 using namespace std;
+
+
+// Class handling card-specific details
+class Card {
 
 class GameObject {
 protected:
@@ -18,20 +22,28 @@ public:
 int GameObject::remainingFlips = 32;  // Initialize static variable with 32 flips
 
 class Card : public GameObject {
+
 private:
     char value;
     bool faceUp;
 
 public:
+    Card(char value) : value(value), faceUp(false) {} // Card handles only its state and behavior.
+
     // Accessor for card value
     char getValue() const {
         return value;
     }
 
+    void flip() {
+        faceUp = !faceUp; // Flipping logic specific to the card.
+        flipCount++;
+
     // Mutator for flipping the card
     void flip() override {  // Overriding virtual function from GameObject
         faceUp = !faceUp;
         remainingFlips--;  // Decrement remaining flips every time a card is flipped
+
     }
 
     // Accessor for faceUp state
@@ -39,6 +51,14 @@ public:
         return faceUp;
     }
 
+    static int getFlipCount() {
+        return flipCount;
+    }
+};
+
+int Card::flipCount = 0;
+
+// Class managing the game logic
     // Parameterized constructor for Card
     Card(char value) {
         this->value = value;
@@ -50,6 +70,10 @@ class MemoryGame {
 private:
     Card* cards[4][4];
     static int totalCards;  // Static variable for tracking total cards
+
+    void initializeCards() {
+        char initialCards[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+                               'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
 
 public:
     // Mutator for flipping a card
@@ -75,6 +99,8 @@ public:
         int index = 0;
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
+                cards[i][j] = new Card(initialCards[index++]); // Delegating card-specific logic to Card class.
+                totalCards++;
                 cards[i][j] = new Card(initialCards[index++]);
                 totalCards++;  // Increment total cards when a new card is created
             }
@@ -91,7 +117,11 @@ public:
         shuffle(arr, arr + size, g);
     }
 
-    // Destructor for MemoryGame
+public:
+    MemoryGame() {
+        initializeCards(); // Game initialization logic is distinct from card-specific behavior.
+    }
+
     ~MemoryGame() {
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
@@ -100,7 +130,22 @@ public:
         }
     }
 
-    // Display cards
+    void flipCard(int row, int col) {
+        if (row >= 0 && row < 4 && col >= 0 && col < 4) {
+            cards[row][col]->flip(); // Uses Card class functionality for flipping.
+        }
+    }
+
+    void flipAllCards() {
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (!cards[i][j]->isFaceUp()) {
+                    cards[i][j]->flip(); // Again relies on Card for flip behavior.
+                }
+            }
+        }
+    }
+
     void displayCards() const {
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
@@ -112,6 +157,10 @@ public:
             }
             cout << endl;
         }
+    }
+
+    static int getTotalCards() {
+        return totalCards;
     }
 };
 
@@ -129,8 +178,16 @@ int main() {
         cout << "\nEnter the row and column of the card to flip (0-3 for both) or (-1 -1) to exit: ";
         cin >> row >> col;
 
+        if (choice == 's') {
+            cout << "Enter the row and column of the card to flip (0-3 for both): ";
+            cin >> row >> col;
+            game.flipCard(row, col);
+        } else if (choice == 'a') {
+            game.flipAllCards();
+
         if (row == -1 && col == -1) {
             break;  // Exit loop if user inputs -1 -1
+
         }
 
         game.flipCard(row, col);
