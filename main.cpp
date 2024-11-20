@@ -1,10 +1,11 @@
-#include <iostream> 
+#include <iostream>  
 #include <algorithm>  // For std::shuffle
 #include <random>     // For std::random_device and std::mt19937
 #include <ctime>      // For seeding the random number generator
 
 using namespace std;
 
+// Class handling card-specific details
 class Card {
 private:
     char value;
@@ -12,12 +13,14 @@ private:
     static int flipCount;
 
 public:
+    Card(char value) : value(value), faceUp(false) {} // Card handles only its state and behavior.
+
     char getValue() const {
         return value;
     }
 
     void flip() {
-        faceUp = !faceUp;
+        faceUp = !faceUp; // Flipping logic specific to the card.
         flipCount++;
     }
 
@@ -28,51 +31,25 @@ public:
     static int getFlipCount() {
         return flipCount;
     }
-
-    Card(char value) {
-        this->value = value;
-        this->faceUp = false;
-    }
 };
 
 int Card::flipCount = 0;
 
+// Class managing the game logic
 class MemoryGame {
 private:
     Card* cards[4][4];
     static int totalCards;
 
-public:
-    void flipCard(int row, int col) {  // Function overloading: specific card flip
-        if (row >= 0 && row < 4 && col >= 0 && col < 4) {
-            cards[row][col]->flip();
-        }
-    }
-
-    void flipCard() {  // Function overloading: flip all cards
-        for (int i = 0; i < 4; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                if (!cards[i][j]->isFaceUp()) {
-                    cards[i][j]->flip();
-                }
-            }
-        }
-    }
-
-    static int getTotalCards() {
-        return totalCards;
-    }
-
-    MemoryGame() {
-        char initialCards[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 
+    void initializeCards() {
+        char initialCards[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
-
         shuffleCards(initialCards, 16);
 
         int index = 0;
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
-                cards[i][j] = new Card(initialCards[index++]);
+                cards[i][j] = new Card(initialCards[index++]); // Delegating card-specific logic to Card class.
                 totalCards++;
             }
         }
@@ -84,10 +61,31 @@ public:
         shuffle(arr, arr + size, g);
     }
 
+public:
+    MemoryGame() {
+        initializeCards(); // Game initialization logic is distinct from card-specific behavior.
+    }
+
     ~MemoryGame() {
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
                 delete cards[i][j];
+            }
+        }
+    }
+
+    void flipCard(int row, int col) {
+        if (row >= 0 && row < 4 && col >= 0 && col < 4) {
+            cards[row][col]->flip(); // Uses Card class functionality for flipping.
+        }
+    }
+
+    void flipAllCards() {
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (!cards[i][j]->isFaceUp()) {
+                    cards[i][j]->flip(); // Again relies on Card for flip behavior.
+                }
             }
         }
     }
@@ -103,6 +101,10 @@ public:
             }
             cout << endl;
         }
+    }
+
+    static int getTotalCards() {
+        return totalCards;
     }
 };
 
@@ -127,9 +129,9 @@ int main() {
         if (choice == 's') {
             cout << "Enter the row and column of the card to flip (0-3 for both): ";
             cin >> row >> col;
-            game.flipCard(row, col);  // Calls specific card flip (overloaded function)
+            game.flipCard(row, col);
         } else if (choice == 'a') {
-            game.flipCard();  // Calls all-cards flip (overloaded function)
+            game.flipAllCards();
         }
 
         game.displayCards();
