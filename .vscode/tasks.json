@@ -5,6 +5,7 @@
             "label": "C/C++: g++.exe build active file",
             "command": "C:\\MinGW\\bin\\g++.exe",
             "args": [
+                "-std=c++11",                     // Add this line
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
@@ -28,6 +29,7 @@
             "label": "C/C++: gcc.exe build active file",
             "command": "C:\\MinGW\\bin\\gcc.exe",
             "args": [
+                "-std=c++11",                     // Add this line
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
